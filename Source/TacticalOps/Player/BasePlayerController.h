@@ -4,7 +4,7 @@
 
 #include "GameFramework/PlayerController.h"
 #include "UnrealNetwork.h"
-#include "TacticalOpsGameModeBase.h"
+#include "TacticalOps.h"
 #include "BasePlayerController.generated.h"
 
 /**

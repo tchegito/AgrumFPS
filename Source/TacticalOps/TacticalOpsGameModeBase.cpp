@@ -281,8 +281,8 @@ void ATacticalOpsGameModeBase::PlayerSpawn(ABasePlayerController * PC)
 				ABaseWorldSettings * WorldSettings = Cast<ABaseWorldSettings>(GetWorldSettings());
 				if (WorldSettings)
 				{
-					const ETeamEnum PlayerTeam = PC->GetTeam();
-					const bool bTeamAMeshes = PlayerTeam == ETeamEnum::TeamA || PlayerTeam == ETeamEnum::None;
+					const ETeamGalEnum PlayerTeam = PC->GetTeam();
+					const bool bTeamAMeshes = PlayerTeam == ETeamGalEnum::TeamA || PlayerTeam == ETeamGalEnum::None;
 					const TArray<USkeletalMesh *> & MeshesArray = bTeamAMeshes ? WorldSettings->TeamASoldierMeshes : WorldSettings->TeamBSoldierMeshes;
 					if (WorldSettings->bUseRandomSoldierMeshes)
 					{

@@ -168,7 +168,7 @@ void ABasePlayerController::SetViewTargetToMenuCamera()
 //Spawn and Teamjoin Mechanics
 
 
-void ABasePlayerController::JoinTeam(ETeamEnum InTeam)
+void ABasePlayerController::JoinTeam(ETeamGalEnum InTeam)
 {
 	if (GetNetMode() == NM_Client)
 	{
@@ -176,24 +176,17 @@ void ABasePlayerController::JoinTeam(ETeamEnum InTeam)
 		return;
 	}
 
-	AFPSGameMode * GameMode = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
+	AGameModeBase * GameMode = Cast<AGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (GameMode)
 	{
 		GameMode->PlayerJoinTeam(this, InTeam);
 	}
 }
 
-void ABasePlayerController::ServerJoinTeam_Implementation(ETeamGalEnum InTeam)
+void ABasePlayerController::ServerJoinTeam(ETeamGalEnum InTeam)
 {
 	JoinTeam(InTeam);
 }
-
-bool ABasePlayerController::ServerJoinTeam_Validate(ETeamGalEnum InTeam)
-{
-	return true;
-}
-
-
 
 void ABasePlayerController::Spawn()
 {
@@ -212,12 +205,8 @@ void ABasePlayerController::Spawn()
 	}
 }
 
-void ABasePlayerController::ServerSpawn_Implementation()
+void ABasePlayerController::ServerSpawn()
 {
 	Spawn();
 }
 
-bool ABasePlayerController::ServerSpawn_Validate()
-{
-	return true;
-}

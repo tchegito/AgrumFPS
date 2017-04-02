@@ -4,46 +4,8 @@
 
 #include "GameFramework/GameModeBase.h"
 #include "Player/BasePlayerController.h"
-
+#include "World/BaseWorldSettings.h"
 #include "TacticalOpsGameModeBase.generated.h"
-
-/**
- * 
- */
-UENUM(BlueprintType)
-enum class ERoundStateEnum : uint8
-{
-	PreRound,
-	InProgress,
-	RoundEnd,
-};
-
-
-UENUM(BlueprintType)
-enum class ETeamGalEnum : uint8
-{
-	None,
-	Terros,
-	SpecialOps,
-};
-
-UENUM(BlueprintType)
-enum class ETerroTeamEnum : uint8
-{
-	Default,
-	SentierLumineux,
-	Jambon,
-};
-
-
-UENUM(BlueprintType)
-enum class ESpecialForcesTeamEnum : uint8
-{
-	Default,
-	SWAT,
-	Spetnaz,
-	GIGN,
-};
 
 // Struct to store information about teams
 USTRUCT()
