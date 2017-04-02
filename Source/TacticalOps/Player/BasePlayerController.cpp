@@ -4,6 +4,7 @@
 #include "UnrealNetwork.h"
 #include "Hud/TeamSelectionHUD.h"
 #include "World/BaseWorldSettings.h"
+#include "TacticalOpsGameModeBase.h"
 #include "BasePlayerController.h"
 
 
@@ -161,4 +162,62 @@ void ABasePlayerController::SetViewTargetToMenuCamera()
 	{
 		SetViewTarget(WorldSettings->MenuCameras[FMath::RandRange(0, WorldSettings->MenuCameras.Num() - 1)]);
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Spawn and Teamjoin Mechanics
+
+
+void ABasePlayerController::JoinTeam(ETeamEnum InTeam)
+{
+	if (GetNetMode() == NM_Client)
+	{
+		ServerJoinTeam(InTeam);
+		return;
+	}
+
+	AFPSGameMode * GameMode = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
+		GameMode->PlayerJoinTeam(this, InTeam);
+	}
+}
+
+void ABasePlayerController::ServerJoinTeam_Implementation(ETeamGalEnum InTeam)
+{
+	JoinTeam(InTeam);
+}
+
+bool ABasePlayerController::ServerJoinTeam_Validate(ETeamGalEnum InTeam)
+{
+	return true;
+}
+
+
+
+void ABasePlayerController::Spawn()
+{
+	if (GetNetMode() == NM_Client)
+	{
+		
+
+		ServerSpawn();
+		return;
+	}
+
+	ATacticalOpsGameModeBase * GameMode = Cast<ATacticalOpsGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
+		GameMode->PlayerSpawn(this);
+	}
+}
+
+void ABasePlayerController::ServerSpawn_Implementation()
+{
+	Spawn();
+}
+
+bool ABasePlayerController::ServerSpawn_Validate()
+{
+	return true;
 }

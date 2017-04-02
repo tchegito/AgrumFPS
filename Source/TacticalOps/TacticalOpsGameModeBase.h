@@ -4,6 +4,7 @@
 
 #include "GameFramework/GameModeBase.h"
 #include "Player/BasePlayerController.h"
+
 #include "TacticalOpsGameModeBase.generated.h"
 
 /**
@@ -104,7 +105,7 @@ public:
 	void OnGameTimeExpired();
 
 	// Ends this match, no team wins
-	virtual void EndMatch() ;
+	virtual void EndMatch() override;
 
 	// End the match with specified winner team
 	void EndMatch(ETeamGalEnum WinnerTeam);
@@ -135,13 +136,20 @@ public:
 
 	void EndRound(ETeamGalEnum RoundWinner);
 
-	
+	virtual void Reset() override;
 
 	UPROPERTY( BlueprintReadOnly, Category = GameState)
 		ERoundStateEnum RoundState;
+
 	//******************************************************************************************************
 	UPROPERTY(EditAnywhere, Category = GameState)
 	bool CanSpawn;
+
+	// Will move a player to the correct state after login
+	virtual void MovePlayerToEntryState(ABasePlayerController * PC);
+
+	// Move all player controllers to NewState
+	void MoveAllPlayersToState(EPlayerStateEnum NewState);
 	
 	UPROPERTY(EditAnywhere, Category = GameState)
 	FTeamStruct TerroTeam;
@@ -149,4 +157,12 @@ public:
 
 	// Broadcast chat message to all clients
 	void BroadcastChatMessage(ABasePlayerController * FromPC, const FString & Message, bool bTeamOnly);
+
+public:
+	// Player wants to spawn
+	void PlayerSpawn(ABasePlayerController * PC);
+
+	// Overrideable, return whether player may spawn
+	virtual bool CanPlayerSpawn(ABasePlayerController * PC) const;
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 };

@@ -78,6 +78,8 @@ void ATacticalOpsGameModeBase::PostLogin(APlayerController * NewPlayer)
 	
 }
 }
+
+
 void ATacticalOpsGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -107,6 +109,10 @@ void ATacticalOpsGameModeBase :: OnGameTimeExpired()
 
 void ATacticalOpsGameModeBase ::EndMatch()
 {
+	Super::EndMatch();
+
+	// Transition all players to match end state
+	MoveAllPlayersToState(EPlayerStateEnum::MatchEnd);
 
 }
 
@@ -158,16 +164,20 @@ void ATacticalOpsGameModeBase::StartRound()
 // post round terminé, on lance préround
 void ATacticalOpsGameModeBase::NextRound()
 {
-	RoundState = ERoundStateEnum::PreRound;
-
-	AMyGameStateBase *TOGameState = Cast<AMyGameStateBase>(GameState);
 	if (bGameOver)
 	{
 		EndMatch();
 	}
-
+	
 	else
 	{
+		RoundState = ERoundStateEnum::PreRound;
+		Reset();
+
+	AMyGameStateBase *TOGameState = Cast<AMyGameStateBase>(GameState);
+	
+
+	
 		TOGameState->RoundTimeRemaining = PreRoundTime;
 		TOGameState->RoundPlayed++;
 	}
@@ -202,4 +212,95 @@ void ATacticalOpsGameModeBase::BroadcastChatMessage(ABasePlayerController * From
 		}
 	}
 	*/
+}
+
+void ATacticalOpsGameModeBase::Reset()
+{
+	// Do nothing
+}
+
+void ATacticalOpsGameModeBase::MovePlayerToEntryState(ABasePlayerController * PC)
+{
+	PC->EnterSpawnState();
+}
+
+
+void ATacticalOpsGameModeBase::MoveAllPlayersToState(EPlayerStateEnum NewState)
+{
+	// Save enter state function pointer so we don't have to do the switch for every player
+	typedef void (ABasePlayerController::*FunctionPtr)(void);
+	FunctionPtr Function = &ABasePlayerController::EnterSpectatingState;
+	switch (NewState)
+	{
+	case (EPlayerStateEnum::TeamSelection):
+		Function = &ABasePlayerController::EnterTeamSelectionState;
+		break;
+	case (EPlayerStateEnum::Spawn):
+		Function = &ABasePlayerController::EnterSpawnState;
+		break;
+	case (EPlayerStateEnum::Playing):
+		Function = &ABasePlayerController::EnterPlayingState;
+		break;
+	case (EPlayerStateEnum::Death):
+		Function = &ABasePlayerController::EnterDeathState;
+		break;
+	case (EPlayerStateEnum::Spectating):
+		Function = &ABasePlayerController::EnterSpectatingState;
+		break;
+	case (EPlayerStateEnum::MatchEnd):
+		Function = &ABasePlayerController::EnterMatchEndState;
+		break;
+	}
+
+	for (FConstPlayerControllerIterator PlayerItr = GetWorld()->GetPlayerControllerIterator(); PlayerItr; ++PlayerItr)
+	{
+		ABasePlayerController * PC = Cast<ABasePlayerController>(*PlayerItr);
+		if (PC)
+		{
+			(PC->*Function)();
+		}
+	}
+}
+
+
+void ATacticalOpsGameModeBase::PlayerSpawn(ABasePlayerController * PC)
+{
+	if (CanPlayerSpawn(PC))
+	{
+		AActor * PlayerStart = FindPlayerStart(PC);
+		if (PlayerStart)
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+			// Spawn soldier
+			ASoldier * Soldier = GetWorld()->SpawnActor<ASoldier>(SoldierClass, PlayerStart->GetActorLocation(), FRotator(0.f, PlayerStart->GetActorRotation().Yaw, 0.f), SpawnParams);
+			if (Soldier)
+			{
+				USkeletalMesh * SoldierMesh = NULL;
+				ABaseWorldSettings * WorldSettings = Cast<ABaseWorldSettings>(GetWorldSettings());
+				if (WorldSettings)
+				{
+					const ETeamEnum PlayerTeam = PC->GetTeam();
+					const bool bTeamAMeshes = PlayerTeam == ETeamEnum::TeamA || PlayerTeam == ETeamEnum::None;
+					const TArray<USkeletalMesh *> & MeshesArray = bTeamAMeshes ? WorldSettings->TeamASoldierMeshes : WorldSettings->TeamBSoldierMeshes;
+					if (WorldSettings->bUseRandomSoldierMeshes)
+					{
+						if (MeshesArray.Num())
+							SoldierMesh = MeshesArray[FMath::RandRange(0, MeshesArray.Num() - 1)];
+					}
+					else
+					{
+						const uint8 LoadoutSlot = PC->GetLoadoutSlot();
+						if (MeshesArray.IsValidIndex(LoadoutSlot))
+							SoldierMesh = MeshesArray[LoadoutSlot];
+					}
+				}
+
+				Soldier->SetLoadout(GetPlayerLoadout(PC), SoldierMesh);
+				PC->Possess(Soldier);
+				PC->EnterPlayingState();
+			}
+		}
+	}
 }

@@ -4,6 +4,7 @@
 
 #include "GameFramework/PlayerController.h"
 #include "UnrealNetwork.h"
+#include "TacticalOpsGameModeBase.h"
 #include "BasePlayerController.generated.h"
 
 /**
@@ -70,4 +71,24 @@ private:
 // Set view target to camera actor selected in world settings
 protected:
 	void SetViewTargetToMenuCamera();
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Try to join team
+	UFUNCTION(BlueprintCallable, Category = PlayerController)
+		void JoinTeam(ETeamGalEnum InTeam);
+
+private:
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerJoinTeam(ETeamGalEnum InTeam);
+
+public:
+	// Try to spawn
+	UFUNCTION(BlueprintCallable, Category = PlayerController)
+		void Spawn();
+
+
+private:
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerSpawn();
 };
