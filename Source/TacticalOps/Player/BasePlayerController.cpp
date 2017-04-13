@@ -176,17 +176,28 @@ void ABasePlayerController::JoinTeam(ETeamGalEnum InTeam)
 		return;
 	}
 
-	AGameModeBase * GameMode = Cast<AGameModeBase>(GetWorld()->GetAuthGameMode());
+	ATacticalOpsGameModeBase * GameMode = Cast<ATacticalOpsGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (GameMode)
 	{
 		GameMode->PlayerJoinTeam(this, InTeam);
 	}
 }
 
-void ABasePlayerController::ServerJoinTeam(ETeamGalEnum InTeam)
+
+
+
+
+void ABasePlayerController::ServerJoinTeam_Implementation(ETeamGalEnum InTeam)
 {
 	JoinTeam(InTeam);
 }
+
+bool ABasePlayerController::ServerJoinTeam_Validate(ETeamGalEnum InTeam)
+{
+	return true;
+}
+
+
 
 void ABasePlayerController::Spawn()
 {
@@ -205,8 +216,13 @@ void ABasePlayerController::Spawn()
 	}
 }
 
-void ABasePlayerController::ServerSpawn()
+
+void ABasePlayerController::ServerSpawn_Implementation()
 {
 	Spawn();
 }
 
+bool ABasePlayerController::ServerSpawn_Validate()
+{
+	return true;
+}

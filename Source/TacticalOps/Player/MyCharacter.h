@@ -28,12 +28,7 @@ public:
 	
 private:
 
-	// Health of a soldier (0-100), replicated
-	UPROPERTY(EditDefaultsOnly, Category = Solider, ReplicatedUsing = OnRep_Health)
-		float Health;
-
-	UFUNCTION()
-		void OnRep_Health();
+	
 
 	UPROPERTY(EditAnyWhere)
 		USkeletalMesh * CharacterMesh;

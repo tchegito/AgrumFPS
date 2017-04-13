@@ -265,42 +265,18 @@ void ATacticalOpsGameModeBase::MoveAllPlayersToState(EPlayerStateEnum NewState)
 
 void ATacticalOpsGameModeBase::PlayerSpawn(ABasePlayerController * PC)
 {
-	if (CanPlayerSpawn(PC))
-	{
-		AActor * PlayerStart = FindPlayerStart(PC);
-		if (PlayerStart)
-		{
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+}
 
-			// Spawn soldier
-			ASoldier * Soldier = GetWorld()->SpawnActor<ASoldier>(SoldierClass, PlayerStart->GetActorLocation(), FRotator(0.f, PlayerStart->GetActorRotation().Yaw, 0.f), SpawnParams);
-			if (Soldier)
-			{
-				USkeletalMesh * SoldierMesh = NULL;
-				ABaseWorldSettings * WorldSettings = Cast<ABaseWorldSettings>(GetWorldSettings());
-				if (WorldSettings)
-				{
-					const ETeamGalEnum PlayerTeam = PC->GetTeam();
-					const bool bTeamAMeshes = PlayerTeam == ETeamGalEnum::TeamA || PlayerTeam == ETeamGalEnum::None;
-					const TArray<USkeletalMesh *> & MeshesArray = bTeamAMeshes ? WorldSettings->TeamASoldierMeshes : WorldSettings->TeamBSoldierMeshes;
-					if (WorldSettings->bUseRandomSoldierMeshes)
-					{
-						if (MeshesArray.Num())
-							SoldierMesh = MeshesArray[FMath::RandRange(0, MeshesArray.Num() - 1)];
-					}
-					else
-					{
-						const uint8 LoadoutSlot = PC->GetLoadoutSlot();
-						if (MeshesArray.IsValidIndex(LoadoutSlot))
-							SoldierMesh = MeshesArray[LoadoutSlot];
-					}
-				}
+void ATacticalOpsGameModeBase::PlayerJoinTeam(ABasePlayerController * PC, ETeamGalEnum InTeam)
+{
+	
+		MovePlayerToEntryState(PC);
+	
+}
 
-				Soldier->SetLoadout(GetPlayerLoadout(PC), SoldierMesh);
-				PC->Possess(Soldier);
-				PC->EnterPlayingState();
-			}
-		}
-	}
+
+bool ATacticalOpsGameModeBase::CanPlayerSpawn(ABasePlayerController * PC) const
+{
+	// Player can only spawn when match is still in progress
+	return PC != NULL && !HasMatchEnded();
 }

@@ -126,5 +126,8 @@ public:
 
 	// Overrideable, return whether player may spawn
 	virtual bool CanPlayerSpawn(ABasePlayerController * PC) const;
+	// Player wants to join a team
+
+	void PlayerJoinTeam(ABasePlayerController * PC, ETeamGalEnum InTeam);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 };
